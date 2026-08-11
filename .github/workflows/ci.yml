@@ -30,6 +30,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      # 3.5. 在运行 Maven 之前安装 JMeter
+      - name: Install JMeter
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jmeter
+
       # 4. 运行 Maven 构建
       - name: Build with Maven
         run: mvn clean verify
