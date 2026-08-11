@@ -30,11 +30,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 3.5. 在运行 Maven 之前安装 JMeter
+      # 3.5. 在运行 Maven 之前安装 JMeter，修改JMeter版本与本地一致
       - name: Install JMeter
         run: |
-          sudo apt-get update
-          sudo apt-get install -y jmeter
+          wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
+          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "$(pwd)/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
 
       # 3.7. 添加Newman HTML报告插件的安装
       - name: Install Newman HTML Reporter
