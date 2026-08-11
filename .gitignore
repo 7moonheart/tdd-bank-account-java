@@ -23,4 +23,3 @@ jacoco.exec
 
 # 本地环境文件
 *.properties
-Local.postman_environment.json
