@@ -36,6 +36,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y jmeter
 
+      # 3.7. 添加Newman HTML报告插件的安装
+      - name: Install Newman HTML Reporter
+        run: npm install -g newman-reporter-html
+
       # 4. 运行 Maven 构建
       - name: Build with Maven
         run: mvn clean verify

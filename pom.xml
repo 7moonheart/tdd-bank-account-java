@@ -149,7 +149,25 @@
                                 <argument>${basedir}/src/test/jmeter/BankAccount_LoadTest.jmx</argument>
                                 <argument>-l</argument>
                                 <argument>${basedir}/target/jmeter-results/results.jtl</argument>
-                                <argument>-e</argument>
+<!--                                <argument>-e</argument>-->
+<!--                                <argument>-o</argument>-->
+<!--                                <argument>${basedir}/target/jmeter-results/html</argument>-->
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!-- JMeter 性能测试 -g参数从.jtl文件生成报告 -->
+                    <execution>
+                        <id>jmeter-generate-report</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>jmeter</executable>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                            <arguments>
+                                <argument>-g</argument>
+                                <argument>${basedir}/target/jmeter-results/results.jtl</argument>
                                 <argument>-o</argument>
                                 <argument>${basedir}/target/jmeter-results/html</argument>
                             </arguments>
