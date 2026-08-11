@@ -1,0 +1,26 @@
+# 排除不需要提交到Git的文件，如编译产物、IDE配置、测试报告等
+
+# 编译产物
+target/
+*.class
+*.jar
+
+# IDE 配置
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# 测试报告
+newman/
+jmeter-results/
+surefire-reports/
+jacoco.exec
+
+# 日志文件
+*.log
+
+# 本地环境文件
+*.properties
+Local.postman_environment.json
