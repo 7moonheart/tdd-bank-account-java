@@ -25,34 +25,34 @@ public class Account {
         return balance;
     }
 
-    public void deposit(Money amount) {
-        if (amount.getValue() <= 0) {
-            throw new IllegalArgumentException("Deposit amount must be positive");
-        }
-        this.balance = this.balance.add(amount);
-        // 记录交易
-        transactions.add(new Transaction("存款", amount.getValue(), this.balance.getValue()));
-    }
-
 //    public void deposit(Money amount) {
 //        if (amount.getValue() <= 0) {
 //            throw new IllegalArgumentException("Deposit amount must be positive");
 //        }
-////        notificationService.send("开始处理存款");
 //        this.balance = this.balance.add(amount);
 //        // 记录交易
 //        transactions.add(new Transaction("存款", amount.getValue(), this.balance.getValue()));
-//        // 调用通知服务
-////        notificationService.notify("存款成功，当前余额：" + this.balance.getValue());
-////        boolean sent = notificationService.send("存款成功，当前余额：" + this.balance.getValue());
-////        if(!sent) System.out.println("通知发送失败，但存款已成功");
-//        try {
-//            notificationService.send("存款成功，当前余额：" + this.balance.getValue());
-//        } catch (Exception e) {
-//            // 记录日志，但不影响存款结果
-//            System.out.println("通知发送失败，但存款已成功：" + e.getMessage());
-//        }
 //    }
+
+    public void deposit(Money amount) {
+        if (amount.getValue() <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
+//        notificationService.send("开始处理存款");
+        this.balance = this.balance.add(amount);
+        // 记录交易
+        transactions.add(new Transaction("存款", amount.getValue(), this.balance.getValue()));
+        // 调用通知服务
+//        notificationService.notify("存款成功，当前余额：" + this.balance.getValue());
+//        boolean sent = notificationService.send("存款成功，当前余额：" + this.balance.getValue());
+//        if(!sent) System.out.println("通知发送失败，但存款已成功");
+        try {
+            notificationService.send("存款成功，当前余额：" + this.balance.getValue());
+        } catch (Exception e) {
+            // 记录日志，但不影响存款结果
+            System.out.println("通知发送失败，但存款已成功：" + e.getMessage());
+        }
+    }
 
      public void withdraw(Money amount) {
          if (amount.getValue() <= 0) {

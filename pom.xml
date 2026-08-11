@@ -55,7 +55,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.14.2</version>
+            <version>5.16.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -185,13 +185,22 @@
                 <version>3.2.4</version>
                 <executions>
                     <execution>
-                        <id>pre-integration-test</id>
+                        <id>start-spring-boot</id>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>start</goal>
                         </goals>
+                        <configuration>
+                            <wait>1000</wait> <!-- 等待服务启动的最大毫秒数 -->
+                            <maxAttempts>10</maxAttempts>
+                            <fork>true</fork>  <!-- 关键：在独立进程中启动 -->
+<!--                            <skip>false</skip>-->
+<!--                            <jmxPort>9002</jmxPort>   &lt;!&ndash; 使用一个未占用的端口 &ndash;&gt;-->
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>post-integration-test</id>
+                        <id>stop-spring-boot</id>
+                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>stop</goal>
                         </goals>
