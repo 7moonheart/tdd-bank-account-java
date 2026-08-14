@@ -223,6 +223,11 @@
                             <goal>stop</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal> <!-- 设置打包时生成可执行jar -->
+                        </goals>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
