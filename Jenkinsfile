@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 git branch: 'main', url: 'https://github.com/7moonheart/tdd-bank-account-java.git'
-                sh 'mvn clean verify'
+                bat 'mvn clean verify'
             }
         }
         stage('Archive Artifacts') {
