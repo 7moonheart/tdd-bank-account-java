@@ -30,40 +30,60 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 3.3. Python相关配置
+      # 4. 安装 Python 环境（用于 pytest）
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-            python-version: '3.10'
+          python-version: '3.10'
 
+      # 5. 安装 Python 依赖
       - name: Install Python dependencies
         run: |
           cd py_tests
           python -m pip install --upgrade pip
           pip install pytest requests pytest-html
 
-      # 3.5. 在运行 Maven 之前安装 JMeter，修改JMeter版本与本地一致
+      # 6. 安装 JMeter，修改JMeter版本与本地一致
       - name: Install JMeter
         run: |
           wget https://downloads.apache.org/jmeter/binaries/apache-jmeter-5.6.3.tgz
           tar -xzf apache-jmeter-5.6.3.tgz
           echo "$(pwd)/apache-jmeter-5.6.3/bin" >> $GITHUB_PATH
 
-      # 3.7. 添加Newman HTML报告插件的安装
+      # 7. 安装 Newman HTML 报告插件
       - name: Install Newman HTML Reporter
         run: npm install -g newman-reporter-html
 
-      # 4. 运行 Maven 构建
-      - name: Build with Maven
-        run: mvn clean verify
+      # 8. 编译打包（跳过测试）
+      - name: Compile and package (skip tests)
+        run: mvn clean package -DskipTests
 
-      # 5. 运行 pytest API 测试
+      # 9. 启动 Spring Boot 服务
+      - name: Start Spring Boot service
+        run: mvn spring-boot:start
+
+      # 10. 运行 Newman API 测试（独立于 Maven）
+      - name: Run Newman API tests
+        run: newman run Bank_Account_API_Tests.postman_collection.json -e Local.postman_environment.json -r html
+
+      # 11. 运行 JMeter 性能测试（独立于 Maven）
+      - name: Run JMeter performance tests
+        run: |
+          jmeter -n -t src/test/jmeter/BankAccount_LoadTest.jmx \
+            -l target/jmeter-results/results.jtl \
+            -e -o target/jmeter-results/html
+
+      # 12. 运行 pytest API 测试
       - name: Run pytest API tests
         run: |
           cd py_tests
           pytest test_bank_api.py -v --html=report.html
 
-      # 6. 上传 JUnit 测试报告（方便查看）
+      # 13. 停止 Spring Boot 服务
+      - name: Stop Spring Boot service
+        run: mvn spring-boot:stop
+
+      # 14. 上传 JUnit 测试报告
       - name: Upload JUnit test reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -71,7 +91,7 @@ jobs:
           name: junit-reports
           path: target/surefire-reports/
 
-      # 7. 上传 JaCoCo 覆盖率报告
+      # 15. 上传 JaCoCo 覆盖率报告
       - name: Upload JaCoCo coverage report
         uses: actions/upload-artifact@v4
         if: always()
@@ -79,7 +99,7 @@ jobs:
           name: jacoco-report
           path: target/site/jacoco/
 
-      # 8. 上传 Newman API 测试报告（如果有生成）
+      # 16. 上传 Newman API 测试报告
       - name: Upload Newman test report
         uses: actions/upload-artifact@v4
         if: always()
@@ -87,7 +107,7 @@ jobs:
           name: newman-report
           path: newman/
 
-      # 9. 上传 JMeter 性能测试报告
+      # 17. 上传 JMeter 性能测试报告
       - name: Upload JMeter test report
         uses: actions/upload-artifact@v4
         if: always()
@@ -95,7 +115,7 @@ jobs:
           name: jmeter-report
           path: target/jmeter-results/html/
 
-      # 10. 上传 pytest API 测试报告
+      # 18. 上传 pytest 测试报告
       - name: Upload pytest report
         uses: actions/upload-artifact@v4
         if: always()
@@ -103,7 +123,7 @@ jobs:
           name: pytest-report
           path: py_tests/report.html
 
-      # 11. 上传打包好的 JAR 文件
+      # 19. 上传打包好的 JAR 文件
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         if: success()
