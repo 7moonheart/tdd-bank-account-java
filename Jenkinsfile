@@ -3,6 +3,7 @@ pipeline {
 
     parameters {
         string(name: 'BRANCH', defaultValue: 'main', description: '要构建的分支名')
+        choice(name: 'RUN_TESTS', choices: ['yes', 'no'], description: '是否运行测试？')
     }
 
     environment {
@@ -16,9 +17,22 @@ pipeline {
                 bat 'echo 当前分支: %BRANCH%'
                 bat 'echo 当前版本: %APP_VERSION%'
                 bat 'echo 构建时间: %BUILD_TIME%'
-                bat 'mvn clean verify'
+                bat 'mvn clean verify -Dspring-boot.stop.force=true'
             }
         }
+
+        // 新增的测试阶段，受条件控制
+        stage('Run Tests') {
+            when {
+                expression { params.RUN_TESTS == 'yes' }
+            }
+            steps {
+                bat 'echo 开始运行测试...'
+                // 这里可以执行具体的测试命令，比如只运行单元测试
+                bat 'mvn test'
+            }
+        }
+
         stage('Archive Artifacts') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar, target/surefire-reports/*'
