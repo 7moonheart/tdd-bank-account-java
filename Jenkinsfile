@@ -20,4 +20,13 @@ pipeline {
             }
         }
     }
+
+    post {
+        failure {
+            echo '❌ 构建失败！请检查代码变更或依赖问题。'
+        }
+        success {
+            echo '✅ 构建成功！'
+        }
+    }
 }
