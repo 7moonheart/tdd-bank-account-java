@@ -12,6 +12,29 @@ pipeline {
     }
 
     stages {
+        stage('Prepare Git') {
+            steps {
+                bat 'git config --global http.version HTTP/1.1'
+                bat 'echo 已设置 Git 使用 HTTP/1.1 协议'
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: '*/main']],
+                            extensions: [
+                                [$class: 'CloneOption', depth: 1, noTags: false, reference: ''],
+                                [$class: 'TimeoutOption', timeout: 10]
+                            ],
+                            userRemoteConfigs: [[url: 'https://github.com/7moonheart/tdd-bank-account-java.git']]
+                        ])
+                }
+            }
+        }
+
         stage('Build') {
             steps {
                 bat 'echo 当前分支: %BRANCH%'
@@ -23,33 +46,43 @@ pipeline {
         }
 
         stage('Start Service') {
-            when {
-                expression { params.RUN_TESTS == 'yes' }
-            }
             steps {
                 bat 'mvn spring-boot:start'
             }
         }
-        // 新增：并行执行演示
+        // 并行执行
         stage('Parallel Tasks') {
             when {
                 expression { params.RUN_TESTS == 'yes' }
             }
             parallel {
-                stage('Task A: Run Unit Tests') { // 每个并行任务都是一个独立的stage，有自己的步骤
+                // 每个并行任务都是一个独立的stage，有自己的步骤
+                stage('Task A: Java Unit Tests') {
                     steps {
                         bat 'echo "=== 运行单元测试 ==="'
-                        bat 'mvn test -Dtest=AccountTest,SortedAccountTest,AccountNotificationTest' // 逗号后面有空格会不通过
-//                        bat 'mvn test -Dtest=*Test' // 用通配符匹配所有测试类
+//                        bat 'mvn test -Dtest=AccountTest,SortedAccountTest,AccountNotificationTest' // 逗号后面有空格会不通过
+                        bat 'mvn test -Dtest=*Test' // 用通配符匹配所有测试类
                     }
                 }
-                stage('Task B: Run API Tests') {
+                stage('Task B: Newman API Tests') {
                     steps {
                         bat 'echo "=== 运行 API 测试（Newman） ==="'
                         bat 'newman run Bank_Account_API_Tests.postman_collection.json -e Local.postman_environment.json -r html'
                     }
                 }
-                // 更多测试类，可用继续添加并行任务
+                stage('Task C: pytest API Tests') {
+                    steps {
+                        bat '''
+                            cd py_tests
+                            venv\\Scripts\\activate && pytest test_bank_api.py -v --html=report.html
+                        '''
+                    }
+                    post {
+                        always {
+                            archiveArtifacts artifacts: 'py_tests/report.html'
+                        }
+                    }
+                }
             }
         }
         stage('Stop Service') {
@@ -60,12 +93,6 @@ pipeline {
                 bat 'mvn spring-boot:stop -Dspring-boot.stop.force=true'
             }
         }
-
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar, target/surefire-reports/*'
-            }
-        }
     }
 
     post {
@@ -74,6 +101,9 @@ pipeline {
         }
         success {
             echo '✅ 构建成功！'
+        }
+        always {
+            archiveArtifacts artifacts: 'target/*.jar, target/surefire-reports/*, newman/*, py_tests/report.html'
         }
     }
 }
