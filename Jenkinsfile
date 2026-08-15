@@ -17,29 +17,46 @@ pipeline {
                 bat 'echo 当前分支: %BRANCH%'
                 bat 'echo 当前版本: %APP_VERSION%'
                 bat 'echo 构建时间: %BUILD_TIME%'
-                bat 'mvn clean verify -Dspring-boot.stop.force=true'
+                // 只打包，不运行任何测试（测试将在并行阶段执行）
+                bat 'mvn clean package -DskipTests'
             }
         }
 
+        stage('Start Service') {
+            when {
+                expression { params.RUN_TESTS == 'yes' }
+            }
+            steps {
+                bat 'mvn spring-boot:start'
+            }
+        }
         // 新增：并行执行演示
         stage('Parallel Tasks') {
             when {
                 expression { params.RUN_TESTS == 'yes' }
             }
             parallel {
-                stage('Task A: Run AccountTest') { // 每个并行任务都是一个独立的stage，有自己的步骤
+                stage('Task A: Run Unit Tests') { // 每个并行任务都是一个独立的stage，有自己的步骤
                     steps {
-                        bat 'echo "运行 AccountTest 单元测试..."'
-                        bat 'mvn test -Dtest=AccountTest'
+                        bat 'echo "=== 运行单元测试 ==="'
+                        bat 'mvn test -Dtest=AccountTest, SortedAccountTest, AccountNotificationTest'
                     }
                 }
-                stage('Task B: Run SortedAccountTest') {
+                stage('Task B: Run API Tests') {
                     steps {
-                        bat 'echo "运行 SortedAccountTest 单元测试..."'
-                        bat 'mvn test -Dtest=SortedAccountTest'
+                        bat 'echo "=== 运行 API 测试（Newman） ==="'
+                        bat 'newman run Bank_Account_API_Tests.postman_collection.json -e Local.postman_environment.json -r html'
                     }
                 }
                 // 更多测试类，可用继续添加并行任务
+            }
+        }
+        stage('Stop Service') {
+            when {
+                expression { params.RUN_TESTS == 'yes' }
+            }
+            steps {
+                bat 'mvn spring-boot:stop -Dspring-boot.stop.force=true'
             }
         }
 
