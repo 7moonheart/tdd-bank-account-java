@@ -30,7 +30,7 @@ pipeline {
                 stage('Task A: Run AccountTest') { // 每个并行任务都是一个独立的stage，有自己的步骤
                     steps {
                         bat 'echo "运行 AccountTest 单元测试..."'
-                        bat 'mvn test -Dtest=AccountTest'Windows 下等待 3 秒
+                        bat 'mvn test -Dtest=AccountTest'
                     }
                 }
                 stage('Task B: Run SortedAccountTest') {
