@@ -39,7 +39,8 @@ pipeline {
                 stage('Task A: Run Unit Tests') { // 每个并行任务都是一个独立的stage，有自己的步骤
                     steps {
                         bat 'echo "=== 运行单元测试 ==="'
-                        bat 'mvn test -Dtest=AccountTest, SortedAccountTest, AccountNotificationTest'
+                        bat 'mvn test -Dtest=AccountTest,SortedAccountTest,AccountNotificationTest' // 逗号后面有空格会不通过
+//                        bat 'mvn test -Dtest=*Test' // 用通配符匹配所有测试类
                     }
                 }
                 stage('Task B: Run API Tests') {
