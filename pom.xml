@@ -213,7 +213,7 @@
                             <maxAttempts>10</maxAttempts>
                             <fork>true</fork>  <!-- 关键：在独立进程中启动 -->
 <!--                            <skip>false</skip>-->
-<!--                            <jmxPort>9002</jmxPort>   &lt;!&ndash; 使用一个未占用的端口 &ndash;&gt;-->
+                            <jmxPort>9002</jmxPort>   <!-- 使用一个未占用的端口 -->
                         </configuration>
                     </execution>
                     <execution>
@@ -222,6 +222,9 @@
                         <goals>
                             <goal>stop</goal>
                         </goals>
+                        <configuration>
+                            <jmxPort>9002</jmxPort>
+                        </configuration>
                     </execution>
                     <execution>
                         <goals>
