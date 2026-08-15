@@ -21,15 +21,25 @@ pipeline {
             }
         }
 
-        // 新增的测试阶段，受条件控制
-        stage('Run Tests') {
+        // 新增：并行执行演示
+        stage('Parallel Tasks') {
             when {
                 expression { params.RUN_TESTS == 'yes' }
             }
-            steps {
-                bat 'echo 开始运行测试...'
-                // 这里可以执行具体的测试命令，比如只运行单元测试
-                bat 'mvn test'
+            parallel {
+                stage('Task A: Run AccountTest') { // 每个并行任务都是一个独立的stage，有自己的步骤
+                    steps {
+                        bat 'echo "运行 AccountTest 单元测试..."'
+                        bat 'mvn test -Dtest=AccountTest'Windows 下等待 3 秒
+                    }
+                }
+                stage('Task B: Run SortedAccountTest') {
+                    steps {
+                        bat 'echo "运行 SortedAccountTest 单元测试..."'
+                        bat 'mvn test -Dtest=SortedAccountTest'
+                    }
+                }
+                // 更多测试类，可用继续添加并行任务
             }
         }
 
