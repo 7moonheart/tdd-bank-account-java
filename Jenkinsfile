@@ -47,7 +47,8 @@ pipeline {
 
         stage('Kill Port 8080') {
             steps {
-                bat 'for /f "tokens=5" %a in (\'netstat -ano ^| findstr :8080 ^| findstr LISTENING\') do taskkill /PID %a /F'
+//                bat 'for /f "tokens=5" %a in (\'netstat -ano ^| findstr :8080 ^| findstr LISTENING\') do taskkill /PID %a /F'
+                bat 'taskkill /F /IM java.exe || echo "No Java process to kill"'
             }
         }
 
