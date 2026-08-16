@@ -27,7 +27,7 @@ pipeline {
                             branches: [[name: '*/main']],
                             extensions: [
                                 [$class: 'CloneOption', depth: 1, noTags: false, reference: ''],
-                                [$class: 'TimeoutOption', timeout: 10]
+//                                [$class: 'TimeoutOption', timeout: 10]
                             ],
                             userRemoteConfigs: [[url: 'https://github.com/7moonheart/tdd-bank-account-java.git']]
                         ])
