@@ -45,6 +45,12 @@ pipeline {
             }
         }
 
+        stage('Kill Port 8080') {
+            steps {
+                bat 'for /f "tokens=5" %a in (\'netstat -ano ^| findstr :8080 ^| findstr LISTENING\') do taskkill /PID %a /F'
+            }
+        }
+
         stage('Start Service') {
             steps {
                 bat 'mvn spring-boot:start'
